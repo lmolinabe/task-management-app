@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -16,10 +15,16 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  date: {
-    type: Date,
-    required: true,
+  accessToken: {
+    type: String,
+    required: false,
   },
+  refreshToken: {
+    type: String,
+    required: false,
+  },
+}, {
+  timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
 module.exports = mongoose.model('User', UserSchema);

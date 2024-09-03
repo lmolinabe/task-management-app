@@ -12,44 +12,103 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchUser = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
       try {
         const res = await AppBackendApi.get('/api/auth/me', {
-          headers: { 'x-auth-token': token },
+          headers: { 'x-auth-token': accessToken },
         });
         setUser(res.data);
       } catch (err) {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       }
     }
     setLoading(false);
   };
 
-  const login = async (email, password) => {
-    try {
-      const res = await AppBackendApi.post('/api/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      fetchUser();
-    } catch (err) {
-      localStorage.removeItem('token');
-    }
-  };
-
   const signup = async (name, email, password) => {
     try {
       const res = await AppBackendApi.post('/api/auth/signup', { name, email, password });
-      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('accessToken', res.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.refreshToken);
       fetchUser();
     } catch (err) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const login = async (email, password) => {
+    try {
+      const res = await AppBackendApi.post('/api/auth/login', { email, password });
+      localStorage.setItem('accessToken', res.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.refreshToken);
+      fetchUser();
+    } catch (err) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
   };
+
+  const logout = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        const res = await AppBackendApi.post('/api/auth/logout', {}, {
+          headers: { 'x-auth-token': accessToken },
+        });
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        setUser(null);
+      }
+    } catch (err) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  };
+
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token found.');
+      }
+
+      const res = await AppBackendApi.post('/api/auth/refresh-token', { refreshToken: refreshToken });
+      const newAccessToken = res.data.accessToken;
+      localStorage.setItem('accessToken', newAccessToken);
+      fetchUser();
+
+      return newAccessToken; // Return new token for retrying requests
+    } catch (error) {
+      console.error('Error refreshing access token:', error);
+      logout(); // Log the user out if refresh fails
+      throw error; // Re-throw to handle in the calling component
+    }
+  };
+
+  // Modify AppBackendApi to intercept 401 errors and attempt refresh
+  AppBackendApi.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true; // Prevent infinite loop if refresh fails
+
+        try {
+          const newAccessToken = await refreshAccessToken();
+          originalRequest.headers['x-auth-token'] = newAccessToken;
+          return AppBackendApi(originalRequest); // Retry the original request
+        } catch (refreshError) {
+          return Promise.reject(refreshError); // Propagate error if refresh fails
+        }
+      }
+
+      return Promise.reject(error); // For other errors, reject the promise
+    }
+  );
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, loading }}>

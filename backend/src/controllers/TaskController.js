@@ -11,7 +11,7 @@ exports.createTask = async (req, res) => {
             description,
             dueDate,
             status,
-            user: req.user.id // Assuming req.user.id contains the authenticated user's ID
+            user: req.userId
         });
 
         const savedTask = await newTask.save();
@@ -24,7 +24,7 @@ exports.createTask = async (req, res) => {
 // Get all tasks for the authenticated user
 exports.getAllTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({ user: req.user.id }).sort({ dueDate: 1 });
+        const tasks = await Task.find({ user: req.userId }).sort({ dueDate: 1 });
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve tasks' });
@@ -34,7 +34,7 @@ exports.getAllTasks = async (req, res) => {
 // Get a specific task by ID
 exports.getTaskById = async (req, res) => {
     try {
-        const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
+        const task = await Task.findOne({ _id: req.params.id, user: req.userId });
 
         if (!task) {
             return res.status(404).json({ error: 'Task not found' });
@@ -52,7 +52,7 @@ exports.updateTask = async (req, res) => {
         const { title, description, dueDate, status } = req.body;
 
         const updatedTask = await Task.findOneAndUpdate(
-            { _id: req.params.id, user: req.user.id },
+            { _id: req.params.id, user: req.userId },
             { title, description, dueDate, status },
             { new: true, runValidators: true }
         );
@@ -70,13 +70,13 @@ exports.updateTask = async (req, res) => {
 // Delete a specific task by ID
 exports.deleteTask = async (req, res) => {
     try {
-        const deletedTask = await Task.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+        const deletedTask = await Task.findOneAndDelete({ _id: req.params.id, user: req.userId });
 
         if (!deletedTask) {
             return res.status(404).json({ error: 'Task not found' });
         }
 
-        res.status(200).json({ message: 'Task deleted successfully' });
+        res.status(200).json({ msg: 'Task deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete task' });
     }

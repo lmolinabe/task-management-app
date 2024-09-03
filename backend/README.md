@@ -72,6 +72,7 @@ Ensure you have the following installed:
    MONGODB_URI=mongodb://localhost:27017/task-manager
    JWT_SECRET=your_jwt_secret
    JWT_EXPIRES_IN=1h
+   REFRESH_JWT_SECRET=your_refresh_jwt_secret_key
    ```
 
 ## Usage

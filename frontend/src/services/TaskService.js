@@ -1,7 +1,7 @@
 import AppBackendApi from '../apis/BackendApi';
 
 export const fetchTasks = async () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   const response = await AppBackendApi.get('/api/tasks', {
     headers: { 'x-auth-token': token },
   });
@@ -9,7 +9,7 @@ export const fetchTasks = async () => {
 };
 
 export const createTask = async (task) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   const response = await AppBackendApi.post('/api/tasks', task, {
     headers: { 'x-auth-token': token },
   });
@@ -17,7 +17,7 @@ export const createTask = async (task) => {
 };
 
 export const updateTask = async (taskId, updates) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   const response = await AppBackendApi.put(`/api/tasks/${taskId}`, updates, {
     headers: { 'x-auth-token': token },
   });
@@ -25,7 +25,7 @@ export const updateTask = async (taskId, updates) => {
 };
 
 export const deleteTask = async (taskId) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   await AppBackendApi.delete(`/api/tasks/${taskId}`, {
     headers: { 'x-auth-token': token },
   });

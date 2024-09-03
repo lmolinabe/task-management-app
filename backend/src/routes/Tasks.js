@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const taskController = require('../controllers/TaskController');
-const authMiddleware = require('../middleware/AuthMiddleware'); // Middleware to protect routes
+const authMiddleware = require('../middleware/AuthMiddleware');
 
 // Protect all routes with authentication middleware
 router.use(authMiddleware);

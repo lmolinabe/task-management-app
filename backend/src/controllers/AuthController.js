@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Assuming you have a User model
+const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
 // Set JWT secrets (keep these secure - use environment variables in production)
@@ -135,7 +135,7 @@ exports.refreshToken = async (req, res) => {
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
-            return res.status(401).json({ msg: 'Refresh token required.' });
+            return res.status(401).json({ error: 'Refresh token required.' });
         }
 
         // Verify refresh token
@@ -143,7 +143,7 @@ exports.refreshToken = async (req, res) => {
         // Find user by userId from decoded token
         const user = await User.findById(decoded.userId);
         if (!user || user.refreshToken !== refreshToken) {
-            return res.status(403).json({ msg: 'Invalid refresh token.' });
+            return res.status(403).json({ error: 'Invalid refresh token.' });
         }
 
         // Generate new access token
@@ -158,6 +158,6 @@ exports.refreshToken = async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        res.status(403).json({ msg: 'Invalid refresh token.' });
+        res.status(403).json({ error: 'Invalid refresh token.' });
     }
 };

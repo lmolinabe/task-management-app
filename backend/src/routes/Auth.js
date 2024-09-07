@@ -1,16 +1,9 @@
 const { check } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/AuthController');
 const authMiddleware = require('../middleware/AuthMiddleware');
-
-// Create a rate limiter middleware
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 requests per windowMs
-    msg: '{ "message": "Too many login attempts from this IP, please try again later." }',
-  });
+const rateLimiter = require('../middleware/RateLimiter');
 
 // Sign up route
 router.post(
@@ -31,7 +24,7 @@ router.post(
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Password is required').exists(),
     ],
-    loginLimiter,
+    rateLimiter,
     authController.login
 );
 

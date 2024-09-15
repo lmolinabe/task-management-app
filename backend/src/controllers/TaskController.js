@@ -1,6 +1,7 @@
 // Import the Task model
 const Task = require('../models/Task');
 const { validationResult } = require('express-validator');
+const moment = require('moment');
 
 // Create a new task
 exports.createTask = async (req, res) => {
@@ -27,14 +28,51 @@ exports.createTask = async (req, res) => {
     }
 };
 
+// Get tasks summary for the authenticated user
+// TODO: Unit testing
+exports.getTasksSummary = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const currentDate = moment().utc();
+        const dueSoonDate = moment().utc().add(24, 'hours'); // 24 hours from now
+        const totalTasks = await Task.countDocuments({ user: userId });
+        const onTimeTasks  = await Task.countDocuments({
+            user: userId,
+            dueDate: { $gt: dueSoonDate }
+        });        
+        const dueSoonTasks = await Task.countDocuments({
+            user: userId,
+            dueDate: { $gte: currentDate, $lte: dueSoonDate }
+        });
+        const completedTasks = await Task.countDocuments({ user: userId, status: 'completed' });
+        const overdueTasks = await Task.countDocuments({
+            user: userId,
+            dueDate: { $lt: currentDate },
+            status: { $ne: 'completed' }
+        });
+
+        res.json({
+            totalTasks,
+            onTimeTasks,            
+            dueSoonTasks,
+            completedTasks,
+            overdueTasks
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 // Get all tasks for the authenticated user
+// TODO: Unit testing
 exports.getAllTasks = async (req, res) => {
     try {
         // 1. Filtering by Status
-        const { status, page = 1, limit = 10 } = req.query;
+        const { status, page = 1, limit = 5 } = req.query;
         const query = { user: req.userId };
 
-        if (status) {
+        // Only apply status filter if status is not "all"
+        if (status && status !== 'all') { 
             query.status = status;
         }
 
@@ -77,7 +115,10 @@ exports.getAllTasks = async (req, res) => {
             totalPages: Math.ceil(totalTasks / limit),
             currentPage: parseInt(page),
             pagination,
-            data: tasks 
+            data: tasks.map(task => ({
+                ...task.toObject(), // Convert Mongoose document to plain object
+                dueDate: task.dueDate.toISOString() // Convert dueDate to UTC string
+            })) 
         });
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve tasks.' });

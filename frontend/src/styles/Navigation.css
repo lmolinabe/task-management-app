@@ -1,0 +1,33 @@
+.navigation {
+    background-color: #4682B4; /* White background */
+    padding: 1rem 0; /* Add padding for spacing */
+    border-bottom: 1px solid #eee; /* Subtle bottom border */
+  }
+  
+.navigation ul {
+    list-style: none; /* Remove list markers */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Use flexbox for horizontal layout */
+    justify-content: space-around; /* Evenly space list items */
+}
+  
+.navigation li {
+    margin: 0; /* Remove default list item margins */
+}
+  
+.navigation a {
+    text-decoration: none;
+    color: #fff; /* Dark gray link color */
+    font-weight: bold; /* Slightly bolder font weight */
+    font-size: large;
+    padding: 0.5rem 1rem; /* Add padding for hover effect */
+    transition: background-color 0.2s ease; /* Smooth transition for hover */
+}
+  
+.navigation a:hover,
+.navigation a.active-link {
+    background-color: #377eb8; /* Light gray background on hover and active */
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+}

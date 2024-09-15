@@ -1,0 +1,72 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+    text-align: center;
+    font-family: 'Poppins', sans-serif; /* Fresher font */
+    padding: 0rem; /* Add padding for better spacing on smaller screens */
+  }
+  
+  .home h1 {
+    font-size: 2.5rem; /* Slightly smaller heading for better responsiveness */
+    color: #212529; /* Darker gray heading color */
+    margin-bottom: 1.5rem;
+  }
+  
+  .home p {
+    font-size: 1.1rem;
+    color: #495057; /* Darker gray text color */
+    margin-bottom: 2.5rem;
+    line-height: 1.6; /* Improve readability */
+  }
+  
+  .home-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 10px 20px; /* Slightly reduced padding */
+    font-size: 1rem;
+    font-weight: 600; /* Slightly bolder font weight */
+    text-decoration: none;
+    border-radius: 4px; /* More rounded corners */
+    transition: all 0.2s ease; /* Smoother transition for all properties */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  }
+  
+  .button:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
+  }
+  
+  .button:first-child {
+    background-color: #007bff; /* Brighter blue */
+    color: #fff;
+  }
+  
+  .button:last-child {
+    background-color: #00cc71; /* Brighter green */
+    color: #fff;
+  }
+  
+  /* Media Queries for Responsiveness */
+  @media (max-width: 768px) {
+    .home h1 {
+      font-size: 2rem;
+    }
+  
+    .home p {
+      font-size: 1rem;
+    }
+  
+    .button {
+      padding: 8px 16px; /* Smaller padding on smaller screens */
+    }
+  }  

@@ -7,6 +7,7 @@ const { validationResult } = require('express-validator');
 const accessTokenSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 const accessToken_expires_in = process.env.JWT_EXPIRES_IN || '1h';
 const refreshTokenSecret = process.env.REFRESH_JWT_SECRET || 'your_refresh_jwt_secret_key';
+const refreshToken_expires_in = process.env.REFRESH_JWT_EXPIRES_IN || '6h';
 
 // Function to generate access token
 const generateAccessToken = (user) => {
@@ -15,7 +16,7 @@ const generateAccessToken = (user) => {
   
 // Function to generate refresh token
 const generateRefreshToken = (user) => {
-    return jwt.sign({ userId: user._id }, refreshTokenSecret); // No expiration for refresh token (or set a very long one)
+    return jwt.sign({ userId: user._id }, refreshTokenSecret, { expiresIn: refreshToken_expires_in });
 };
 
 // Controller for user sign up

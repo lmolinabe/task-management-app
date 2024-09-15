@@ -7,6 +7,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Create an event emitter for token refresh
+  const onTokenRefresh = new EventTarget();
+
   useEffect(() => {
     fetchUser();
   }, []);
@@ -20,8 +23,7 @@ export const AuthProvider = ({ children }) => {
         });
         setUser(res.data);
       } catch (err) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        logout();
       }
     }
     setLoading(false);
@@ -30,12 +32,8 @@ export const AuthProvider = ({ children }) => {
   const signup = async (name, email, password) => {
     try {
       const res = await AppBackendApi.post('/api/auth/signup', { name, email, password });
-      localStorage.setItem('accessToken', res.data.accessToken);
-      localStorage.setItem('refreshToken', res.data.refreshToken);
-      fetchUser();
     } catch (err) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+        logout();
     }
   };
 
@@ -46,8 +44,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refreshToken', res.data.refreshToken);
       fetchUser();
     } catch (err) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+        logout();
     }
   };
 
@@ -80,6 +77,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('accessToken', newAccessToken);
       fetchUser();
 
+      // Emit the 'tokenRefreshed' event
+      onTokenRefresh.dispatchEvent(new Event('tokenRefreshed'));
+
       return newAccessToken; // Return new token for retrying requests
     } catch (error) {
       console.error('Error refreshing access token:', error);
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading, onTokenRefresh }}>
       {children}
     </AuthContext.Provider>
   );

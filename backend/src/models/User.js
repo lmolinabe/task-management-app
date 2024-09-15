@@ -23,6 +23,16 @@ const UserSchema = new Schema({
     type: String,
     required: false,
   },
+  notifications: {
+    dueSoon: {
+      type: Boolean,
+      default: false
+    },
+    overdue: {
+      type: Boolean,
+      default: false
+    }
+  }
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });

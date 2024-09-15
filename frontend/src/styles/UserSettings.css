@@ -1,0 +1,38 @@
+.user-settings-container {
+    width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 1rem;
+    margin-bottom: 1rem;
+    align-items: center; /* Align items vertically */
+    transition: transform 0.2s ease; /* Smooth hover effect */ 
+  }
+  
+  .user-settings-container .setting {
+    margin-bottom: 15px;
+  }
+  
+  .user-settings-container label {
+    display: block; /* Make the label appear on its own line */
+    margin-bottom: 5px;
+    cursor: pointer; /* Make the label clickable for the checkbox */
+  }
+  
+  .user-settings-container input[type='checkbox'] {
+    margin-right: 8px; /* Add some space between the checkbox and label */
+  }
+
+  .user-settings-container button {
+    border: none; /* Remove default border */
+    padding: 0.5rem 1rem; /* Add padding for better click area */
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff; /* White text color */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease; /* Smooth transition for hover effects */
+    background-color: #007bff; /* Blue background */
+  }  

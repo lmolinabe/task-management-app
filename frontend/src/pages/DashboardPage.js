@@ -1,95 +1,54 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import TaskList from '../components/TaskList';
-import { fetchTasks, createTask, updateTask, deleteTask } from '../services/TaskService';
+import React, { useEffect, useState } from 'react';
+import { fetchTaskSummary } from '../services/TaskService';
+import '../styles/Dashboard.css';
 
 const DashboardPage = () => {
-  const { user, logout } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [taskSummary, setTaskSummary] = useState({
+        totalTasks: 0,
+        dueSoon: 0,
+        completedTasks: 0
+    });
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const data = await fetchTasks();
-        setTasks(data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        const loadTaskSummary = async () => {
+            try {
+                const summary = await fetchTaskSummary();
+                setTaskSummary(summary);
+            } catch (error) {
+                console.error('Failed to fetch task summary', error);
+            }
+        };
 
-    loadTasks();
-  }, []);
+        loadTaskSummary();
+    }, []);
 
-  const handleCreateTask = async (task) => {
-    try {
-      const newTask = await createTask(task);
-      setTasks([...tasks, newTask]);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleUpdateTask = async (taskId, updates) => {
-    try {
-      const updatedTask = await updateTask(taskId, updates);
-      setTasks(tasks.map((task) => (task._id === taskId ? updatedTask : task)));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleDeleteTask = async (taskId) => {
-    try {
-      await deleteTask(taskId);
-      setTasks(tasks.filter((task) => task._id !== taskId));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Welcome, {user.email}</h1>
-      <button onClick={logout} style={styles.logoutButton}>Log Out</button>
-
-      {loading ? ( 
-        <div>Loading tasks...</div> 
-      ) : error ? (
-        <div>Error: {error}</div>
-      ) : ( 
-        <TaskList
-          tasks={tasks}
-          onCreateTask={handleCreateTask}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-        />
-      )}
-    </div>
-  );
-};
-
-const styles = {
-  container: {
-    padding: '20px',
-  },
-  heading: {
-    fontSize: '2rem',
-    marginBottom: '20px',
-  },
-  logoutButton: {
-    padding: '10px 20px',
-    fontSize: '1rem',
-    color: '#fff',
-    backgroundColor: '#dc3545',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    marginBottom: '20px',
-  },
+    return (
+        <div className="dashboard">
+            <h2>Task Management Dashboard</h2>
+            <div className="dashboard-container">
+                <div className="dashboard-card">
+                    <div className="card-header">Total Tasks</div>
+                    <div className="card-body">{taskSummary.totalTasks}</div>
+                </div>
+                <div className="dashboard-card">
+                    <div className="card-header">Completed Tasks</div>
+                    <div className="card-body">{taskSummary.completedTasks}</div>
+                </div>                                                
+                <div className="dashboard-card">
+                    <div className="card-header">Overdue Tasks</div>
+                    <div className="card-body">{taskSummary.overdueTasks}</div>
+                </div>
+                <div className="dashboard-card">
+                    <div className="card-header">Due Soon Tasks</div>
+                    <div className="card-body">{taskSummary.dueSoonTasks}</div>
+                </div>                
+                <div className="dashboard-card">
+                    <div className="card-header">On Time Tasks</div>
+                    <div className="card-body">{taskSummary.onTimeTasks}</div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default DashboardPage;

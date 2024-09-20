@@ -8,7 +8,6 @@ const { check, body } = require('express-validator');
 router.use(authMiddleware);
 
 // Define route to get tasks summary for the authenticated user
-// TODO: Unit testing
 router.get('/summary', taskController.getTasksSummary);
 
 // Define route to get all tasks for the authenticated user

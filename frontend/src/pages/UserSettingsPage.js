@@ -8,9 +8,11 @@ const UserSettingsPage = () => {
     dueSoon: false,
     overdue: false,
   });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserSettings = async () => {
+      setError(null);
       try {
         const userData = await fetchUser();
         setNotifications({
@@ -18,8 +20,7 @@ const UserSettingsPage = () => {
           overdue: userData.notifications?.overdue || false,
         });
       } catch (error) {
-        console.error('Error fetching user settings:', error);
-        // Handle error, e.g., display an error message
+        setError(error || 'An error occurred during fetching user settings.');
       }
     };
 
@@ -32,12 +33,12 @@ const UserSettingsPage = () => {
   };
 
   const handleSaveSettings = async () => {
+    setError(null);
     try {
       await updateUser({ notifications }); // Update user settings in the backend
       // Optionally display a success message
     } catch (error) {
-      console.error('Error updating settings:', error);
-      // Handle error, e.g., display an error message
+      setError(error || 'An error occurred during updating user settings.');
     }
   };
 
@@ -45,6 +46,19 @@ const UserSettingsPage = () => {
     <div className="user-settings-container">
       <h2>User Settings</h2>
       <h3>Notification Preferences</h3>
+      {error && (
+          <div className="error-message">
+          {Array.isArray(error) ? (
+              <ul>
+              {error.map((err, index) => (
+                  <li key={index}>{err.msg || err}</li> // Display err.msg if available, otherwise err
+              ))}
+              </ul>
+          ) : (
+              <p>{error}</p>
+          )}
+          </div>
+      )}
       <div className="setting">
         <label htmlFor="dueSoon">
           <input

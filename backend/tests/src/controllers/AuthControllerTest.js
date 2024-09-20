@@ -90,7 +90,7 @@ describe('Auth Controller', () => {
             refreshToken = res.body.refreshToken;
         });
 
-        it('should return 400 for invalid credentials', async () => {
+        it('should return 401 for invalid credentials', async () => {
             const res = await request(app)
                 .post('/api/auth/login')
                 .send({
@@ -98,7 +98,7 @@ describe('Auth Controller', () => {
                     password: 'WrongPassword123!',
                 });
 
-            expect(res.statusCode).toBe(400);
+            expect(res.statusCode).toBe(401);
             expect(res.body).toHaveProperty('error', 'Invalid credentials.');
         });
     });

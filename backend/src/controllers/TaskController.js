@@ -29,7 +29,6 @@ exports.createTask = async (req, res) => {
 };
 
 // Get tasks summary for the authenticated user
-// TODO: Unit testing
 exports.getTasksSummary = async (req, res) => {
     try {
         const userId = req.userId;
@@ -38,16 +37,16 @@ exports.getTasksSummary = async (req, res) => {
         const totalTasks = await Task.countDocuments({ user: userId });
         const onTimeTasks  = await Task.countDocuments({
             user: userId,
-            dueDate: { $gt: dueSoonDate }
+            dueDate: { $gt: dueSoonDate.clone() }
         });        
         const dueSoonTasks = await Task.countDocuments({
             user: userId,
-            dueDate: { $gte: currentDate, $lte: dueSoonDate }
+            dueDate: { $gte: currentDate.clone(), $lte: dueSoonDate.clone() }
         });
         const completedTasks = await Task.countDocuments({ user: userId, status: 'completed' });
         const overdueTasks = await Task.countDocuments({
             user: userId,
-            dueDate: { $lt: currentDate },
+            dueDate: { $lt: currentDate.clone() },
             status: { $ne: 'completed' }
         });
 
@@ -64,16 +63,14 @@ exports.getTasksSummary = async (req, res) => {
 };
 
 // Get all tasks for the authenticated user
-// TODO: Unit testing
 exports.getAllTasks = async (req, res) => {
     try {
         // 1. Filtering by Status
-        const { status, page = 1, limit = 5 } = req.query;
+        const { status } = req.query;
         const query = { user: req.userId };
 
-        // Only apply status filter if status is not "all"
-        if (status && status !== 'all') { 
-            query.status = status;
+        if (status && status !== 'all') {
+        query.status = status;
         }
 
         // 2. Sorting by Due Date
@@ -85,6 +82,9 @@ exports.getAllTasks = async (req, res) => {
         }
 
         // 3. Pagination
+        const page = parseInt(req.query.page) || 1; // Default to 1 if invalid
+        const limit = parseInt(req.query.limit) || 5; // Default to 5 if invalid
+    
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const totalTasks = await Task.countDocuments(query);

@@ -7,22 +7,41 @@ const SignupPage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { signup } = useContext(AuthContext);
+    const [error, setError] = useState(null);    
+    const { user, signup } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
         try {
             await signup(name, email, password);
             navigate('/login');
         } catch (error) {
-            console.error('Signup failed', error);
+            setError(error || 'An error occurred during sign up.');
         }
     };
+
+    if (user) {
+        return navigate('/dashboard');
+    }    
 
     return (
         <div className="signup-form-container">
             <h2>Create an account</h2>
+            {error && (
+                <div className="error-message">
+                {Array.isArray(error) ? (
+                    <ul>
+                    {error.map((err, index) => (
+                        <li key={index}>{err.msg || err}</li> // Display err.msg if available, otherwise err
+                    ))}
+                    </ul>
+                ) : (
+                    <p>{error}</p>
+                )}
+                </div>
+            )}
             <form className="signup-form" onSubmit={handleSubmit}>
                 <input
                     type="text"

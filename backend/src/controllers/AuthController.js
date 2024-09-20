@@ -78,13 +78,13 @@ exports.login = async (req, res) => {
         // Check if user exists
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ error: 'Invalid credentials.' });
+            return res.status(401).json({ error: 'Invalid credentials.' });
         }
 
         // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid credentials.' });
+            return res.status(401).json({ error: 'Invalid credentials.' });
         }
 
         // Generate access and refresh tokens
@@ -97,10 +97,10 @@ exports.login = async (req, res) => {
         await user.save(); 
 
         // Send tokens in response
-        res.json({ accessToken: accessToken, refreshToken: refreshToken });        
+        res.json({ accessToken: accessToken, refreshToken: refreshToken }); 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: 'Server error.' });
+        console.error('Error during login:', err);
+        res.status(500).json({ error: 'An error occurred during login.' });
     }
 };
 

@@ -70,6 +70,9 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
     }
   };
 
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+    
   return (
     <div className="modal-overlay"> {/* Add modal overlay */}
       <div className="modal-content"> {/* Add modal content wrapper */}
@@ -103,6 +106,7 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
               type="date"
               id="dueDate"
               name="dueDate"
+              min={!task ? today : ''}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className={errors.dueDate ? 'error' : ''}

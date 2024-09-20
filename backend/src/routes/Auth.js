@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/AuthController');
 const authMiddleware = require('../middleware/AuthMiddleware');
-const rateLimiter = require('../middleware/RateLimiter');
+const rateLimitLogin = require('../middleware/RateLimiter');
 
 // Sign up route
 router.post(
@@ -24,7 +24,7 @@ router.post(
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Password is required').exists(),
     ],
-    rateLimiter,
+    rateLimitLogin,
     authController.login
 );
 

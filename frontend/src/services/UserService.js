@@ -1,4 +1,3 @@
-// TODO: Unit test
 import AppBackendApi from '../apis/BackendApi';
 
 export const fetchUser = async () => {

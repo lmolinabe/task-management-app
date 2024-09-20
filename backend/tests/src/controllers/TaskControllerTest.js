@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const moment = require('moment');
 const request = require('supertest');
 const createTestApp = require('../../config/test-app');
 const { connect, closeDatabase, clearDatabase } = require('../../config/test-db');
@@ -54,7 +55,7 @@ describe('Task Controller', () => {
                 .send({
                     title: 'Test Task',
                     description: 'This is a test task',
-                    dueDate: '2024-04-10',
+                    dueDate: '2024-12-25T23:59:59.999Z',
                     status: 'pending',
                 });
 
@@ -70,7 +71,7 @@ describe('Task Controller', () => {
                 .set('x-auth-token', accessToken)
                 .send({
                     description: 'This is a test task',
-                    dueDate: '2024-04-10',
+                    dueDate: '2024-12-25T23:59:59.999Z',
                     status: 'pending',
                 });
 
@@ -79,13 +80,54 @@ describe('Task Controller', () => {
         });
     });
 
+    describe('GET /api/tasks/summary', () => {
+        it('should return a summary of tasks for the authenticated user', async () => {
+            const currentDate = moment().utc();
+            const dueSoonDate = moment().utc().add(24, 'hours');
+            const overdueDate = moment().utc().subtract(1, 'day');
+    
+            await Task.create({ title: 'On Time Task', dueDate: dueSoonDate.clone().add(1, 'day').toDate(), status: 'pending', user: userId });
+            await Task.create({ title: 'Due Soon Task', dueDate: dueSoonDate.clone().toDate(), status: 'pending', user: userId });
+            await Task.create({ title: 'Completed Task', dueDate: currentDate.toDate(), status: 'completed', user: userId });
+            await Task.create({ title: 'Overdue Task', dueDate: overdueDate.toDate(), status: 'pending', user: userId });
+
+            const res = await request(app)
+                .get('/api/tasks/summary')
+                .set('x-auth-token', accessToken);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toEqual({
+                totalTasks: 4,
+                onTimeTasks: 1,
+                dueSoonTasks: 1,
+                completedTasks: 1,
+                overdueTasks: 1,
+            });
+        });
+
+        it('should return 0 counts if no tasks exist for the user', async () => {
+            const res = await request(app)
+                .get('/api/tasks/summary')
+                .set('x-auth-token', accessToken);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toEqual({
+                totalTasks: 0,
+                onTimeTasks: 0,
+                dueSoonTasks: 0,
+                completedTasks: 0,
+                overdueTasks: 0,
+            });
+        });
+    });
+
     describe('GET /api/tasks', () => {
         beforeEach(async () => {
             // Create some test tasks in the database
             await Task.create([
-                { title: 'Task 1', dueDate: '2024-04-08', status: 'pending', user: userId },
-                { title: 'Task 2', dueDate: '2024-04-15', status: 'in-progress', user: userId },
-                { title: 'Task 3', dueDate: '2024-04-20', status: 'completed', user: userId },
+                { title: 'Task 1', dueDate: '2024-04-08T10:00:00.000Z', status: 'pending', user: userId },
+                { title: 'Task 2', dueDate: '2024-04-15T12:00:00.000Z', status: 'in-progress', user: userId },
+                { title: 'Task 3', dueDate: '2024-04-20T14:00:00.000Z', status: 'completed', user: userId },
             ]);
         });
 
@@ -108,13 +150,24 @@ describe('Task Controller', () => {
             expect(res.body.data[0].status).toBe('pending');
         });
 
-        it('should sort tasks by due date', async () => {
+        it('should sort tasks by due date in ascending order (default)', async () => {
+            const res = await request(app)
+                .get('/api/tasks') // No sorting parameters, should default to ascending due date
+                .set('x-auth-token', accessToken);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.data[0].title).toBe('Task 1'); // Task 1 has the earliest due date
+            expect(res.body.data[2].title).toBe('Task 3'); // Task 3 has the latest due date
+        });
+
+        it('should sort tasks by due date in descending order', async () => {
             const res = await request(app)
                 .get('/api/tasks?sortBy=dueDate&sortOrder=desc')
                 .set('x-auth-token', accessToken);
 
             expect(res.statusCode).toBe(200);
             expect(res.body.data[0].title).toBe('Task 3'); // Task 3 has the latest due date
+            expect(res.body.data[2].title).toBe('Task 1'); // Task 1 has the earliest due date
         });
 
         it('should paginate tasks', async () => {
@@ -125,6 +178,20 @@ describe('Task Controller', () => {
             expect(res.statusCode).toBe(200);
             expect(res.body.data).toHaveLength(1);
             expect(res.body.currentPage).toBe(2);
+            expect(res.body.totalTasks).toBe(3);
+            expect(res.body.totalPages).toBe(3);
+            expect(res.body.pagination.prev.page).toBe(1);
+            expect(res.body.pagination.next.page).toBe(3);
+        });
+
+        it('should handle invalid page or limit parameters', async () => {
+            const res = await request(app)
+                .get('/api/tasks?page=abc&limit=xyz')
+                .set('x-auth-token', accessToken);
+
+            expect(res.statusCode).toBe(200); // Should still return a successful response
+            expect(res.body.data).toHaveLength(3); // Should return all tasks
+            expect(res.body.currentPage).toBe(1); // Should default to page 1
         });
     });
 
@@ -132,7 +199,7 @@ describe('Task Controller', () => {
         it('should get a specific task by ID', async () => {
             const newTask = await Task.create({
                 title: 'Test Task',
-                dueDate: '2024-04-10',
+                dueDate: '2024-12-25T23:59:59.999Z',
                 status: 'pending',
                 user: userId,
             });
@@ -161,7 +228,7 @@ describe('Task Controller', () => {
         it('should update a specific task by ID', async () => {
             const newTask = await Task.create({
                 title: 'Test Task',
-                dueDate: '2024-04-10',
+                dueDate: '2024-12-25T23:59:59.999Z',
                 status: 'pending',
                 user: userId,
             });
@@ -172,8 +239,9 @@ describe('Task Controller', () => {
                 .send({
                     title: 'Updated Task Title',
                     status: 'in-progress',
+                    dueDate: '2024-12-25T23:59:59.999Z',
                 });
-
+            
             expect(res.statusCode).toBe(200);
             expect(res.body.title).toBe('Updated Task Title');
             expect(res.body.status).toBe('in-progress');
@@ -186,6 +254,7 @@ describe('Task Controller', () => {
                 .set('x-auth-token', accessToken)
                 .send({
                     title: 'Updated Task Title',
+                    dueDate: '2024-12-25T23:59:59.999Z',
                     status: 'in-progress',
                 });
 
@@ -198,7 +267,7 @@ describe('Task Controller', () => {
         it('should delete a specific task by ID', async () => {
             const newTask = await Task.create({
                 title: 'Test Task',
-                dueDate: '2024-04-10',
+                dueDate: '2024-12-25T23:59:59.999Z',
                 status: 'pending',
                 user: userId,
             });

@@ -7,15 +7,16 @@ const UserProfilePage = () => {
     name: '',
     email: '',
   });
+  const [error, setError] = useState(null);  
 
   useEffect(() => {
     const fetchUserData = async () => {
+      setError(null);
       try {
         const userData = await fetchUser(); // Fetch user data from backend
         setUser(userData);
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Handle error, e.g., display an error message
+        setError(error || 'An error occurred during fetching user profile.');
       }
     };
 
@@ -26,7 +27,20 @@ const UserProfilePage = () => {
     <div className="user-profile-container">
       <div className="profile-section">
         <h2>User Profile</h2>
-        <h3>Profile Information</h3>        
+        <h3>Profile Information</h3>
+        {error && (
+            <div className="error-message">
+            {Array.isArray(error) ? (
+                <ul>
+                {error.map((err, index) => (
+                    <li key={index}>{err.msg || err}</li> // Display err.msg if available, otherwise err
+                ))}
+                </ul>
+            ) : (
+                <p>{error}</p>
+            )}
+            </div>
+        )}        
         <div>
           <p>
             <strong>Name:</strong> {user.name}

@@ -41,7 +41,7 @@ const TasksPage = () => {
         setTasks(response.data);
         setTotalTasks(response.totalTasks);
       } catch (error) {
-        setError(error.message);
+        setError(error || 'An error occurred during fetching tasks.');
       } finally {
         setLoading(false);
       }
@@ -61,7 +61,7 @@ const TasksPage = () => {
       setTasks([createdTask, ...tasks]);
       setShowForm(false); // Close the form after creating
     } catch (error) {
-      setError(error.message);
+      setError(error || 'An error occurred during creating task.');
     }
   };
 
@@ -73,7 +73,7 @@ const TasksPage = () => {
       setShowForm(false); // Close the form after updating
       setEditingTask(null); // Clear the editing task
     } catch (error) {
-      setError(error.message);
+      setError(error || 'An error occurred during updating task.');
     }
   };
 
@@ -139,11 +139,23 @@ const TasksPage = () => {
         />
       )}       
       {loading && <div>Loading tasks...</div>}
-      {error && <div>Error: {error}</div>}
+      {error && (
+          <div className="error-message">
+          {Array.isArray(error) ? (
+              <ul>
+              {error.map((err, index) => (
+                  <li key={index}>{err.msg || err}</li> // Display err.msg if available, otherwise err
+              ))}
+              </ul>
+          ) : (
+              <p>{error}</p>
+          )}
+          </div>
+      )}
       <ul className="task-list">
         {tasks.map((task) => (
           <li key={task._id} className="task-item">
-            <h4 className='task-title'>{task.title}</h4> {/* Display task title */}
+            <h5 className='task-title'>{task.title}</h5> {/* Display task title */}
             <p className='task-description'>{task.description}</p> {/* Display task description */}
             <p className='task-due-date'>Due Date: {new Date(task.dueDate).toLocaleDateString()}</p>
             <p className='task-status'>Status: {task.status}</p> {/* Display task status */}

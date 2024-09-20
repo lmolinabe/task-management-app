@@ -6,16 +6,17 @@ import '../styles/Login.css';
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
     const { login, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
         try {
             await login(email, password);
         } catch (error) {
-            setError(error.message);
+            setError(error || 'An error occurred during login.');
         }
     };
 
@@ -26,7 +27,19 @@ const LoginPage = () => {
     return (
         <div className="login-form-container">
             <h2>Welcome back</h2>
-            {error && <p className="error">{error}</p>}
+            {error && (
+                <div className="error-message">
+                {Array.isArray(error) ? (
+                    <ul>
+                    {error.map((err, index) => (
+                        <li key={index}>{err.msg || err}</li> // Display err.msg if available, otherwise err
+                    ))}
+                    </ul>
+                ) : (
+                    <p>{error}</p>
+                )}
+                </div>
+            )}
             <form className="login-form" onSubmit={handleSubmit}>
                 <input
                     type="email"

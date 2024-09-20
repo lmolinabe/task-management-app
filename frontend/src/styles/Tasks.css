@@ -13,8 +13,8 @@
 
   .tasks-page button {
     border: none; /* Remove default border */
-    padding: 0.5rem 1rem; /* Add padding for better click area */
-    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem; /* Add padding for better click area */
+    font-size: 0.8rem;
     font-weight: 500;
     color: #fff; /* White text color */
     border-radius: 4px;
@@ -27,21 +27,24 @@
     display: flex;
     justify-content: flex-start;
     align-items: center; /* Align items vertically */
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
   }
   
   .filters label {
     margin-right: 1rem;
     font-weight: 500; /* Slightly bolder label */
     font-size: .9rem;
+    margin-bottom: 0.5rem;
   }
   
   .filters select {
-    padding: 8px 12px;
+    padding: 4px 8px;
     border: 1px solid #ced4da; /* Light gray border */
     border-radius: 5px;
-    font-size: .9rem;
+    font-size: .8rem;
     margin-right: 2rem;
+    margin-bottom: 0.5rem;
   }
   
   /* Task List */
@@ -54,12 +57,17 @@
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 1rem;
-    margin-bottom: 1rem;
-    display: flex; /* Use flexbox for better layout */
+    /* padding: 0.5rem; */
+    padding-top: 0.5rem;;
+    padding-bottom: 0.15rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    margin-bottom: 0.15rem;
+    /* display: flex; */
     justify-content: space-between;
     align-items: center; /* Align items vertically */
     transition: transform 0.2s ease; /* Smooth hover effect */
+    flex-wrap: wrap;
   }
   
   .task-item:hover {
@@ -67,47 +75,51 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More pronounced shadow */
   }
   
-  /* Task Content (Adjust based on your HTML structure) */
+  /* Task Content */
+  .task-item > div {
+    flex: 1 0 100%; /* Take full width on smaller screens */
+    margin-bottom: 0.25rem; /* Add spacing between content */
+    text-align: left; /* Align text to the left */
+  }
+
   .task-item .task-title {
     font-weight: 600;
-    margin-right: auto; /* Push title to the left */
-    width: 25%;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
   }
 
   .task-item .task-description {
-    font-size: 0.9rem;
-    color: #6c757d;    
-    width: 30%;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;    
   }
   
-  .task-item .task-due-date {
-    font-size: 0.9rem;
+  .task-item .task-due-date,
+  .task-item .task-status {
+    font-size: 0.8rem;
     color: #6c757d;
-    width: 15%;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;    
   }
 
-  .task-item .task-status {
-    font-size: 0.9rem;
-    color: #6c757d;
-    width: 15%;
-  }
-  
   .task-item .task-actions {
-    width: 15%;
     display: flex;
     justify-content: flex-end;
+    flex: 1 0 100%; /* Take full width on smaller screens */
   }
 
   .task-item button {
     border: none; /* Remove default border */
-    padding: 0.5rem 1rem; /* Add padding for better click area */
-    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem; /* Add padding for better click area */
+    font-size: 0.8rem;
     font-weight: 500;
     color: #fff; /* White text color */
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease; /* Smooth transition for hover effects */
-    margin-left: 0.5rem; /* Add space between buttons */
+    margin-right: 0.5rem; /* Add space between buttons */
   }
   
   .task-item button:hover {
@@ -116,25 +128,29 @@
   
   .create-button { /* Style for the "Create" button */
     background-color: #00cc71; /* Green background */
+    font-size: 0.8rem;
   }
 
   .update-button { /* Style for the "Update" button */
     background-color: #007bff; /* Blue background */
+    font-size: 0.8rem;
   }
   
   .delete-button { /* Style for the "Delete" button */
     background-color: #dc3545; /* Red background */
+    font-size: 0.8rem;
   }
 
   .pagination button {
     background-color: #fff;
     border: 1px solid #ced4da; /* Light gray border */
     color: #333;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     margin: 0 0.25rem;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 0.8rem;
   }
   
   .pagination button:hover {
@@ -194,4 +210,15 @@
 
  .cancel-button {
   background-color: #6c757d; /* Blue background */
- } 
+ }
+
+ /* Media Queries for Smaller Screens */
+@media (max-width: 768px) {
+  .filters {
+    justify-content: center; /* Center filters on smaller screens */
+  }
+
+  .task-item .task-actions {
+    justify-content: flex-start; /* Align buttons to the left */
+  }
+}

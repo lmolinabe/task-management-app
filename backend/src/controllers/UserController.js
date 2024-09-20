@@ -1,4 +1,3 @@
-// TODO: Unit test
 const User = require('../models/User');
 
 const UserController = {
@@ -37,7 +36,7 @@ const UserController = {
       res.json(user);
     } catch (error) {
       console.error('Error updating user profile:', error);
-      res.status(500).json({ error: 'Failed to update user profile' });
+      res.status(500).json({ error: 'Failed to update user settings' });
     }
   }  
 };

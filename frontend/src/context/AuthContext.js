@@ -31,9 +31,9 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
-      const res = await AppBackendApi.post('/api/auth/signup', { name, email, password });
+      await AppBackendApi.post('/api/auth/signup', { name, email, password });
     } catch (err) {
-        logout();
+      return Promise.reject(err.response.data.error || err.response.data.errors);
     }
   };
 
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refreshToken', res.data.refreshToken);
       fetchUser();
     } catch (err) {
-        logout();
+        return Promise.reject(err.response.data.error || err.response.data.errors);
     }
   };
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
-        const res = await AppBackendApi.post('/api/auth/logout', {}, {
+        await AppBackendApi.post('/api/auth/logout', {}, {
           headers: { 'x-auth-token': accessToken },
         });
         localStorage.removeItem('accessToken');
@@ -96,13 +96,18 @@ export const AuthProvider = ({ children }) => {
 
       if (error.response && error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true; // Prevent infinite loop if refresh fails
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
 
-        try {
-          const newAccessToken = await refreshAccessToken();
-          originalRequest.headers['x-auth-token'] = newAccessToken;
-          return AppBackendApi(originalRequest); // Retry the original request
-        } catch (refreshError) {
-          return Promise.reject(refreshError); // Propagate error if refresh fails
+        if(accessToken && refreshToken)
+        {
+          try {
+            const newAccessToken = await refreshAccessToken();
+            originalRequest.headers['x-auth-token'] = newAccessToken;
+            return AppBackendApi(originalRequest); // Retry the original request
+          } catch (refreshError) {
+            return Promise.reject(refreshError); // Propagate error if refresh fails
+          }
         }
       }
 

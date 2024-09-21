@@ -42,7 +42,7 @@ describe('Auth Controller', () => {
                     password: 'NewPassword123!',
                 });
 
-            expect(res.statusCode).toBe(200);
+            expect(res.statusCode).toBe(201);
             expect(res.body).toHaveProperty('accessToken');
             expect(res.body).toHaveProperty('refreshToken');
         });

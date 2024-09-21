@@ -79,3 +79,8 @@ cron.schedule(notificationsJobSchedule, async () => {
     console.error('Error checking for due tasks:', error);
   }
 });
+
+module.exports = { 
+  sendDueSoonNotifications, 
+  sendOverdueNotifications,
+};

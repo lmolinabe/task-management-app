@@ -1,4 +1,5 @@
 module.exports = {
     testEnvironment: 'node',
-    testMatch: ['**/tests/src/**/*.js'], 
+    testMatch: ['**/tests/**/*.js'],
+    testPathIgnorePatterns: ['/tests/config/'],
 };

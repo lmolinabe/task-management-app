@@ -58,7 +58,7 @@ exports.signup = async (req, res) => {
         await user.save();       
         
         // Send tokens in response
-        res.json({ accessToken: accessToken, refreshToken: refreshToken });
+        res.status(201).json({ accessToken: accessToken, refreshToken: refreshToken });
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Server error.' });
@@ -158,7 +158,6 @@ exports.refreshToken = async (req, res) => {
         res.json({ accessToken: newAccessToken });
 
     } catch (err) {
-        console.error(err.message);
         res.status(403).json({ error: 'Invalid refresh token.' });
     }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link  } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Signup.css';
@@ -11,6 +11,12 @@ const SignupPage = () => {
     const { user, signup } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (user) {
+          navigate('/dashboard');
+        }
+      }, [user]);        
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
@@ -21,10 +27,6 @@ const SignupPage = () => {
             setError(error || 'An error occurred during sign up.');
         }
     };
-
-    if (user) {
-        return navigate('/dashboard');
-    }    
 
     return (
         <div className="signup-form-container">

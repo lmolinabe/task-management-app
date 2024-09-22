@@ -83,7 +83,7 @@ const UserSettingsPage = () => {
           Overdue Notifications
         </label>
       </div>
-      <button onClick={handleSaveSettings}>Save Settings</button>
+      <button onClick={handleSaveSettings}>Save</button>
     </div>
   );
 };

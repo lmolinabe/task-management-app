@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect  } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Home.css';
@@ -7,9 +7,11 @@ const HomePage = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    if (user) {
-        return navigate('/dashboard');
-    }
+    useEffect(() => {
+        if (user) {
+          navigate('/dashboard');
+        }
+      }, [user]);
 
     return (
         <div className="home">

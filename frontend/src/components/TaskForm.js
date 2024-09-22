@@ -127,7 +127,7 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
             </select>
           </div>
           <div className="form-buttons">
-            <button className='action-button' type="submit">{task ? 'Edit' : 'Add'}</button>
+            <button id='save-button' className='action-button' type="submit">Save</button>
             <button className='cancel-button' type="button" onClick={onClose}>Cancel</button> {/* Close the modal */}
           </div>
         </form>

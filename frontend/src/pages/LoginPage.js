@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Login.css';
@@ -10,19 +10,22 @@ const LoginPage = () => {
     const { login, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (user) {
+          navigate('/dashboard');
+        }
+      }, [user]);    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         try {
             await login(email, password);
+            navigate('/dashboard');
         } catch (error) {
             setError(error || 'An error occurred during login.');
         }
     };
-
-    if (user) {
-        return navigate('/dashboard');
-    }
 
     return (
         <div className="login-form-container">

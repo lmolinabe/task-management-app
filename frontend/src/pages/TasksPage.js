@@ -122,7 +122,7 @@ const TasksPage = () => {
           <option value="dueDate:desc">Descending</option>
         </select>
       </div>
-      <button className='create-button' onClick={() => setShowForm(true)}>Add</button>
+      <button id='new-task-button' className='create-button' onClick={() => setShowForm(true)}>Add</button>
       {/* Task Form (conditionally rendered as a modal) */}
       {showForm && (
         <TaskForm

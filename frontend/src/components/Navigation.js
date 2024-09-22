@@ -26,7 +26,7 @@ const Navigation = () => {
                     <NavLink to="/settings" exact activeClassName="active-link">Settings</NavLink>
                 </li>
                 <li>
-                    <Link to="/" onClick={logout}>Logout</Link>
+                    <Link id="logout-link" to="/" onClick={logout}>Logout</Link>
                 </li>
             </ul>
         </nav>

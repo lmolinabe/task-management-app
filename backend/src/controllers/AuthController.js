@@ -2,6 +2,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // Set JWT secrets (keep these secure - use environment variables in production)
 const accessTokenSecret = process.env.JWT_SECRET || 'your_jwt_secret';
@@ -28,16 +33,21 @@ exports.signup = async (req, res) => {
         }
     
         const { name, email, password } = req.body;
+
+        // Sanitize input:
+        const sanitizedName = DOMPurify.sanitize(name);
+        const sanitizedEmail = DOMPurify.sanitize(email);        
+
         // Check if user already exists
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: sanitizedEmail });
         if (user) {
             return res.status(400).json({ error: 'User already exists.' });
         }
 
         // Create new user
         user = new User({
-            name,
-            email,
+            name: sanitizedName,
+            email: sanitizedEmail,
             password,
         });
 
@@ -74,9 +84,12 @@ exports.login = async (req, res) => {
         }
     
         const { email, password } = req.body;
-        
+
+        // Sanitize input:
+        const sanitizedEmail = DOMPurify.sanitize(email);
+       
         // Check if user exists
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: sanitizedEmail });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials.' });
         }

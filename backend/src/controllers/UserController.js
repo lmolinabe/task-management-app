@@ -1,4 +1,9 @@
 const User = require('../models/User');
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 const UserController = {
   // Get the current user's profile
@@ -21,8 +26,13 @@ const UserController = {
       const { notifications } = req.body; // Get updatable fields from the request body
       const updateFields = {};
 
-      // Conditionally update fields
-      if (notifications) updateFields.notifications = notifications;
+      // Conditionally update and sanitize fields
+      if (notifications) {
+        updateFields.notifications = {
+          dueSoon: !!DOMPurify.sanitize(notifications.dueSoon),
+          overdue: !!DOMPurify.sanitize(notifications.overdue),
+        };
+      }
 
       const user = await User.findByIdAndUpdate(
         req.userId,

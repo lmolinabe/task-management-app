@@ -2,6 +2,11 @@
 const Task = require('../models/Task');
 const { validationResult } = require('express-validator');
 const moment = require('moment');
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+
+const window = new JSDOM('').window; // Create a virtual DOM
+const DOMPurify = createDOMPurify(window); // Initialize DOMPurify
 
 // Create a new task
 exports.createTask = async (req, res) => {
@@ -13,9 +18,13 @@ exports.createTask = async (req, res) => {
 
         const { title, description, dueDate, status } = req.body;
 
+        // Sanitize the title and description using DOMPurify
+        const sanitizedTitle = DOMPurify.sanitize(title);
+        const sanitizedDescription = DOMPurify.sanitize(description);
+
         const newTask = new Task({
-            title,
-            description,
+            title: sanitizedTitle,
+            description: sanitizedDescription,
             dueDate,
             status,
             user: req.userId
@@ -150,9 +159,13 @@ exports.updateTask = async (req, res) => {
 
         const { title, description, dueDate, status } = req.body;
 
+        // Sanitize the title and description using DOMPurify
+        const sanitizedTitle = DOMPurify.sanitize(title);
+        const sanitizedDescription = DOMPurify.sanitize(description);        
+
         const updatedTask = await Task.findOneAndUpdate(
             { _id: req.params.id, user: req.userId },
-            { title, description, dueDate, status },
+            { title: sanitizedTitle, description: sanitizedDescription, dueDate, status },
             { new: true, runValidators: true }
         );
 

@@ -27,7 +27,7 @@ connectDB();
 app.use(express.json({ extended: false }));
 app.use(helmet());
 app.use(morgan('common'));
-app.use(cors());
+app.use(cors({ origin: process.env.APP_FRONTEND_URL }));
 
 // Routes
 app.use('/api/auth', authRoutes);

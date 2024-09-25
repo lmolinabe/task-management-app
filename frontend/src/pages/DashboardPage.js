@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import AppBackendApi from '../apis/BackendApi';
 import { fetchTaskSummary } from '../services/TaskService';
 import '../styles/Dashboard.css';
 
 const DashboardPage = () => {
+    const [csrfToken, setCsrfToken] = useState(null);
     const [taskSummary, setTaskSummary] = useState({
         totalTasks: 0,
         dueSoon: 0,
@@ -10,17 +12,32 @@ const DashboardPage = () => {
     });
 
     useEffect(() => {
-        const loadTaskSummary = async () => {
-            try {
-                const summary = await fetchTaskSummary();
-                setTaskSummary(summary);
-            } catch (error) {
-                console.error('Failed to fetch task summary', error);
-            }
+        const fetchCsrfToken = async () => {
+          try {
+            const response = await AppBackendApi.get('/api/csrf-token');
+            setCsrfToken(response.data.csrfToken);
+          } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+          }
         };
-
+    
+        fetchCsrfToken();
+      }, []);
+    
+      useEffect(() => {
+        const loadTaskSummary = async () => {
+          if (csrfToken) {
+            try {
+              const summary = await fetchTaskSummary(csrfToken);
+              setTaskSummary(summary);
+            } catch (error) {
+              console.error('Failed to fetch task summary', error);
+            }
+          }
+        };
+    
         loadTaskSummary();
-    }, []);
+      }, [csrfToken]);
 
     return (
         <div className="dashboard">

@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import AppBackendApi from '../apis/BackendApi';
 import '../styles/Login.css';
 
 const LoginPage = () => {
+    const [csrfToken, setCsrfToken] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
@@ -11,6 +13,16 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const fetchCsrfToken = async () => {
+            try {
+              const response = await AppBackendApi.get('/api/csrf-token');
+              setCsrfToken(response.data.csrfToken); 
+            } catch (error) {
+              console.error('Error fetching CSRF token:', error);
+            }
+        };
+        fetchCsrfToken();
+
         if (user) {
           navigate('/dashboard');
         }

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import AppBackendApi from '../apis/BackendApi';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../services/TaskService';
 import TaskForm from '../components/TaskForm';
 import ConfirmationModal from '../components/ConfirmationModal';
 import '../styles/Tasks.css';
 
 const TasksPage = () => {
+  const [csrfToken, setCsrfToken] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,21 +27,36 @@ const TasksPage = () => {
   const [editingTask, setEditingTask] = useState(null);  
 
   useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await AppBackendApi.get('/api/csrf-token');
+        setCsrfToken(response.data.csrfToken);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+      }
+    };
+
+    fetchCsrfToken();
+  }, []);
+
+  useEffect(() => {
     const fetchTasksData = async () => {
       try {
-        // Construct the query parameters
-        const queryParams = new URLSearchParams({
-          status: filterStatus,
-          // Use dueDateSort for both sortBy and sortOrder
-          sortBy: dueDateSort ? dueDateSort.split(':')[0] : null, // Extract sortBy
-          sortOrder: dueDateSort ? dueDateSort.split(':')[1] : null, // Extract sortOrder
-          page: currentPage,
-          limit: tasksPerPage,
-        }).toString();
+        if (csrfToken) {
+          // Construct the query parameters
+          const queryParams = new URLSearchParams({
+            status: filterStatus,
+            // Use dueDateSort for both sortBy and sortOrder
+            sortBy: dueDateSort ? dueDateSort.split(':')[0] : null, // Extract sortBy
+            sortOrder: dueDateSort ? dueDateSort.split(':')[1] : null, // Extract sortOrder
+            page: currentPage,
+            limit: tasksPerPage,
+          }).toString();
 
-        const response = await fetchTasks(queryParams);
-        setTasks(response.data);
-        setTotalTasks(response.totalTasks);
+          const response = await fetchTasks(queryParams, csrfToken);
+          setTasks(response.data);
+          setTotalTasks(response.totalTasks);
+        }
       } catch (error) {
         setError(error || 'An error occurred during fetching tasks.');
       } finally {
@@ -48,7 +65,7 @@ const TasksPage = () => {
     };
 
     fetchTasksData();
-  }, [filterStatus, dueDateSort, currentPage]);
+  }, [filterStatus, dueDateSort, currentPage, csrfToken]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -57,7 +74,7 @@ const TasksPage = () => {
   // Function to handle creating a new task
   const handleCreateTask = async (taskData) => {
     try {
-      const createdTask = await createTask(taskData);
+      const createdTask = await createTask(taskData, csrfToken);
       setTasks([createdTask, ...tasks]);
       setShowForm(false); // Close the form after creating
     } catch (error) {
@@ -68,7 +85,7 @@ const TasksPage = () => {
   // Function to handle updating a task
   const handleUpdateTask = async (taskData) => {
     try {
-      const updatedTask = await updateTask(editingTask._id, taskData);
+      const updatedTask = await updateTask(editingTask._id, taskData, csrfToken);
       setTasks(tasks.map(task => (task._id === updatedTask._id ? updatedTask : task)));
       setShowForm(false); // Close the form after updating
       setEditingTask(null); // Clear the editing task
@@ -86,7 +103,7 @@ const TasksPage = () => {
   // Function to handle confirmation from the modal
   const handleConfirmDelete = async () => {
     try {
-      await deleteTask(taskToDelete);
+      await deleteTask(taskToDelete, csrfToken);
       setTasks(tasks.filter(task => task._id !== taskToDelete));
       setShowModal(false); // Close the modal
       setTaskToDelete(null); // Clear the task to delete

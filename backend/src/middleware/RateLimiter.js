@@ -1,5 +1,3 @@
-const rateLimit = require('express-rate-limit');
-
 const rateLimitWindowTime = process.env.RATE_LIMIT_WINDOW_TIME || 1; // Default to 1 minute if not set
 const loginAttempts = {};
 

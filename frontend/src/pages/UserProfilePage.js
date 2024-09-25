@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import AppBackendApi from '../apis/BackendApi';
 import { fetchUser } from '../services/UserService';
 import '../styles/UserProfile.css';
 
 const UserProfilePage = () => {
+  const [csrfToken, setCsrfToken] = useState(null);
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -10,18 +12,33 @@ const UserProfilePage = () => {
   const [error, setError] = useState(null);  
 
   useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await AppBackendApi.get('/api/csrf-token');
+        setCsrfToken(response.data.csrfToken);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+      }
+    };
+
+    fetchCsrfToken();
+  }, []);
+
+  useEffect(() => {
     const fetchUserData = async () => {
       setError(null);
-      try {
-        const userData = await fetchUser(); // Fetch user data from backend
-        setUser(userData);
-      } catch (error) {
-        setError(error || 'An error occurred during fetching user profile.');
+      if (csrfToken) {
+        try {
+          const userData = await fetchUser(csrfToken); // Fetch user data from backend
+          setUser(userData);
+        } catch (error) {
+          setError(error || 'An error occurred during fetching user profile.');
+        }
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [csrfToken]);
 
   return (
     <div className="user-profile-container">

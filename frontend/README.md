@@ -68,7 +68,7 @@ Ensure you have the following installed:
     Create a .env file in the root directory of the project to configure environment-specific variables:
 
    ```bash
-   APP_BACKEND_URL=http://localhost:5000/api
+   APP_BACKEND_URL=http://localhost:5000
    ```
 
     APP_BACKEND_URL: The base URL for the backend API.

@@ -69,10 +69,15 @@ Ensure you have the following installed:
 
    ```bash
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/task-manager
-   JWT_SECRET=your_jwt_secret
+   MONGO_URI=mongodb://mongo:27017/task_management_db
+   JWT_SECRET=3e4f1a605ab08c76c7efdde245b9a32e3f8e879368061efebfb6465631a2e899
    JWT_EXPIRES_IN=1h
-   REFRESH_JWT_SECRET=your_refresh_jwt_secret_key
+   REFRESH_JWT_SECRET=13301d2d6ca9b786acea34ac18986eb551ad9ecc67e1ec1218752ec3fd5a5e69
+   REFRESH_JWT_EXPIRES_IN=12h
+   APP_FRONTEND_URL=http://localhost:3000
+   NOTIFICATIONS_JOB_SCHEDULE=*/30 * * * *
+   RATE_LIMIT_WINDOW_TIME=15
+   NODE_ENV=development
    ```
 
 ## Usage

@@ -4,10 +4,13 @@ import { BrowserRouter } from 'react-router-dom';
 import { act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TasksPage from '../../../src/pages/TasksPage';
-import { fetchTasks, createTask, updateTask, deleteTask } from '../../../src/services/TaskService'; // Adjust path if needed
+import { fetchTasks, createTask, updateTask, deleteTask } from '../../../src/services/TaskService';
+import AppBackendApi from '../../../src/apis/BackendApi';
 
 // Mock the TaskService functions
 jest.mock('../../../src/services/TaskService');
+// Mock the Backend API
+jest.mock('../../../src/apis/BackendApi');
 
 describe('TasksPage', () => {
   const mockTasks = [
@@ -20,13 +23,12 @@ describe('TasksPage', () => {
     { _id: '1', title: 'Task 1', description: 'Description 1', dueDate: '2024-01-01T12:00:00.000Z', status: 'pending' },
   ];
 
-  const mockTasksPagination = [
+  const mockTasksBefore = [
     { _id: '1', title: 'Task 1', description: 'Description 1', dueDate: '2024-01-01T12:00:00.000Z', status: 'pending' },
-    { _id: '2', title: 'Task 2', description: 'Description 2', dueDate: '2024-01-05T12:00:00.000Z', status: 'in-progress' },
-    { _id: '3', title: 'Task 3', description: 'Description 3', dueDate: '2024-01-10T12:00:00.000Z', status: 'completed' },
-    { _id: '4', title: 'Task 4', description: 'Description 4', dueDate: '2024-01-01T12:00:00.000Z', status: 'pending' },
-    { _id: '5', title: 'Task 5', description: 'Description 5', dueDate: '2024-01-05T12:00:00.000Z', status: 'in-progress' },
-    { _id: '6', title: 'Task 6', description: 'Description 6', dueDate: '2024-01-10T12:00:00.000Z', status: 'completed' },
+  ];
+
+  const mockTasksAfter = [
+    { _id: '2', title: 'Task 2', description: 'Description 2', dueDate: '2024-01-01T12:00:00.000Z', status: 'pending' },
   ];  
 
   beforeEach(() => {
@@ -35,6 +37,9 @@ describe('TasksPage', () => {
     createTask.mockReset();
     updateTask.mockReset();
     deleteTask.mockReset();
+
+    // Mock the CSRF token fetch
+    AppBackendApi.get.mockResolvedValue({ data: { csrfToken: 'mock-csrf-token' } });    
   });
 
   it('renders tasks from the API', async () => {
@@ -49,18 +54,6 @@ describe('TasksPage', () => {
     expect(await screen.findByText('Task 1')).toBeInTheDocument();
     expect(await screen.findByText('Task 2')).toBeInTheDocument();
     expect(await screen.findByText('Task 3')).toBeInTheDocument();
-  });
-
-  it('displays a loading message while fetching tasks', () => {
-    fetchTasks.mockImplementation(() => new Promise(() => {})); // Simulate a pending promise
-
-    render(
-      <BrowserRouter>
-        <TasksPage />
-      </BrowserRouter>
-    );
-
-    expect(screen.getByText('Loading tasks...')).toBeInTheDocument();
   });
 
   it('displays an error message if fetching tasks fails', async () => {
@@ -127,7 +120,9 @@ describe('TasksPage', () => {
 
   it('deletes an existing task', async () => {
     deleteTask.mockResolvedValueOnce();
-    fetchTasks.mockResolvedValueOnce({ data: mockTask, totalTasks: 1 });
+    fetchTasks
+      .mockResolvedValueOnce({ data: mockTasksBefore, totalTasks: 2 })
+      .mockResolvedValueOnce({ data: mockTasksAfter, totalTasks: 1 });
 
     render(
       <BrowserRouter>
@@ -158,7 +153,7 @@ describe('TasksPage', () => {
 
     await act(() => Promise.resolve()); // Wait for the state update and re-render
 
-    expect(fetchTasks).toHaveBeenLastCalledWith('status=pending&sortBy=dueDate&sortOrder=asc&page=1&limit=5');
+    expect(fetchTasks).toHaveBeenLastCalledWith('status=pending&sortBy=dueDate&sortOrder=asc&page=1&limit=5', "mock-csrf-token");
   });
 
   it('sorts tasks by due date in ascending order', async () => {
@@ -174,7 +169,7 @@ describe('TasksPage', () => {
 
     await act(() => Promise.resolve()); // Wait for the state update and re-render
 
-    expect(fetchTasks).toHaveBeenCalledWith('status=all&sortBy=dueDate&sortOrder=asc&page=1&limit=5');
+    expect(fetchTasks).toHaveBeenCalledWith('status=all&sortBy=dueDate&sortOrder=asc&page=1&limit=5', "mock-csrf-token");
     // Check if tasks are rendered in ascending order of due date
     expect(screen.getByText('Task 1')).toBeInTheDocument();
     expect(screen.getByText('Task 2')).toBeInTheDocument();
@@ -194,7 +189,7 @@ describe('TasksPage', () => {
 
     await act(() => Promise.resolve()); // Wait for the state update and re-render
 
-    expect(fetchTasks).toHaveBeenLastCalledWith('status=all&sortBy=dueDate&sortOrder=desc&page=1&limit=5');
+    expect(fetchTasks).toHaveBeenLastCalledWith('status=all&sortBy=dueDate&sortOrder=desc&page=1&limit=5', "mock-csrf-token");
     // Check if tasks are rendered in descending order of due date
     expect(screen.getByText('Task 3')).toBeInTheDocument();
     expect(screen.getByText('Task 2')).toBeInTheDocument();

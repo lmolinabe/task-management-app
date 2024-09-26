@@ -3,11 +3,19 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import UserProfilePage from '../../../src/pages/UserProfilePage';
 import { fetchUser } from '../../../src/services/UserService';
+import AppBackendApi from '../../../src/apis/BackendApi';
 
 // Mock the fetchUser service
 jest.mock('../../../src/services/UserService');
+// Mock the Backend API
+jest.mock('../../../src/apis/BackendApi');
 
 describe('UserProfilePage', () => {
+  beforeEach(() => {
+    // Mock the CSRF token fetch
+    AppBackendApi.get.mockResolvedValueOnce({ data: { csrfToken: 'mock-csrf-token' } });    
+  });
+    
   it('renders user profile data', async () => {
     // Mock user data
     const mockUserData = {

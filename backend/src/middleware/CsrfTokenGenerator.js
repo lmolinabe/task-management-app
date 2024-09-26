@@ -7,8 +7,7 @@ module.exports = function(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
-      sameSite: 'lax',
-      maxAge: 3600000
+      sameSite: 'lax'
     });
   }
   next();

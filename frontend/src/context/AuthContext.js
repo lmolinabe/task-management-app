@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      setUser(null);
     }
   };
 
@@ -116,7 +117,7 @@ export const AuthProvider = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading, onTokenRefresh }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, fetchUser, loading, onTokenRefresh }}>
       {children}
     </AuthContext.Provider>
   );

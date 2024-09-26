@@ -43,12 +43,17 @@ io.on('connection', (socket) => {
       try {
         const decoded = jwt.verify(token, accessTokenSecret);
         socket.userId = decoded.userId; // Store userId on the socket object
+        socket.leaveAll();
         socket.join(socket.userId); // Join the user's room
+        socket.on('disconnect', (reason) => {
+          console.log(`User ${socket.userId} disconnected: ${reason}`);
+          socket.leave(socket.userId); 
+        });  
       } catch (err) {
         console.error('Invalid token:', err);
         // Handle invalid token (e.g., disconnect the socket)
         socket.disconnect(); 
-      }
+      }  
     } else {
       console.error('No token provided for Socket.IO connection.');
       // Handle missing token (e.g., disconnect the socket)
@@ -72,6 +77,7 @@ cron.schedule(notificationsJobSchedule, async () => {
     }).populate('user', '_id notifications');;
 
     // Send notifications
+    console.log('Send notifications');
     await sendDueSoonNotifications(dueSoonTasks);
     await sendOverdueNotifications(overdueTasks);
 

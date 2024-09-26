@@ -12,16 +12,16 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
     if (task) {
       setTitle(task.title || '');
       setDescription(task.description || '');
-    // Format the dueDate to YYYY-MM-DD for the date input (in local time)
-    if (task.dueDate) {
-      const dueDateObject = new Date(task.dueDate);
-      const year = dueDateObject.getFullYear();
-      const month = (dueDateObject.getMonth() + 1).toString().padStart(2, '0');
-      const day = dueDateObject.getDate().toString().padStart(2, '0');
-      setDueDate(`${year}-${month}-${day}`);
-    } else {
-      setDueDate('');
-    }
+      // Format the dueDate to YYYY-MM-DD for the date input (in local time)
+      if (task.dueDate) {
+        const dueDateObject = new Date(task.dueDate);
+        const year = dueDateObject.getFullYear();
+        const month = (dueDateObject.getMonth() + 1).toString().padStart(2, '0');
+        const day = dueDateObject.getDate().toString().padStart(2, '0');
+        setDueDate(`${year}-${month}-${day}`);
+      } else {
+        setDueDate('');
+      }
       setStatus(task.status || 'pending');
     }
   }, [task]);
@@ -71,8 +71,8 @@ const TaskForm = ({ task, onSubmit, onClose }) => {
   };
 
   // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
-    
+  const today = new Date().toLocaleDateString('en-CA');
+      
   return (
     <div className="modal-overlay"> {/* Add modal overlay */}
       <div className="modal-content"> {/* Add modal content wrapper */}

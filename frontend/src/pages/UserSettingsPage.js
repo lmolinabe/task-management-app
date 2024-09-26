@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import AppBackendApi from '../apis/BackendApi';
-import { fetchUser, updateUser } from '../services/UserService';
+import { fetchUser as getUser, updateUser } from '../services/UserService';
 import '../styles/UserSettings.css';
 
 const UserSettingsPage = () => {
@@ -10,6 +11,7 @@ const UserSettingsPage = () => {
     overdue: false,
   });
   const [error, setError] = useState(null);
+  const { fetchUser } = useContext(AuthContext);  
 
   useEffect(() => {
     const fetchCsrfToken = async () => {
@@ -29,7 +31,7 @@ const UserSettingsPage = () => {
       setError(null);
       if (csrfToken) {
         try {
-          const userData = await fetchUser(csrfToken);
+          const userData = await getUser(csrfToken);
           setNotifications({
             dueSoon: userData.notifications?.dueSoon || false, // Handle cases where notifications might be undefined
             overdue: userData.notifications?.overdue || false,
@@ -52,6 +54,7 @@ const UserSettingsPage = () => {
     setError(null);
     try {
       await updateUser({ notifications }, csrfToken); // Update user settings in the backend
+      fetchUser(); // Refresh user data
       // Optionally display a success message
     } catch (error) {
       setError(error || 'An error occurred during updating user settings.');

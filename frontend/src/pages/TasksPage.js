@@ -39,31 +39,31 @@ const TasksPage = () => {
     fetchCsrfToken();
   }, []);
 
-  useEffect(() => {
-    const fetchTasksData = async () => {
-      try {
-        if (csrfToken) {
-          // Construct the query parameters
-          const queryParams = new URLSearchParams({
-            status: filterStatus,
-            // Use dueDateSort for both sortBy and sortOrder
-            sortBy: dueDateSort ? dueDateSort.split(':')[0] : null, // Extract sortBy
-            sortOrder: dueDateSort ? dueDateSort.split(':')[1] : null, // Extract sortOrder
-            page: currentPage,
-            limit: tasksPerPage,
-          }).toString();
+  const fetchTasksData = async () => {
+    try {
+      if (csrfToken) {
+        // Construct the query parameters
+        const queryParams = new URLSearchParams({
+          status: filterStatus,
+          // Use dueDateSort for both sortBy and sortOrder
+          sortBy: dueDateSort ? dueDateSort.split(':')[0] : null, // Extract sortBy
+          sortOrder: dueDateSort ? dueDateSort.split(':')[1] : null, // Extract sortOrder
+          page: currentPage,
+          limit: tasksPerPage,
+        }).toString();
 
-          const response = await fetchTasks(queryParams, csrfToken);
-          setTasks(response.data);
-          setTotalTasks(response.totalTasks);
-        }
-      } catch (error) {
-        setError(error || 'An error occurred during fetching tasks.');
-      } finally {
-        setLoading(false);
+        const response = await fetchTasks(queryParams, csrfToken);
+        setTasks(response.data);
+        setTotalTasks(response.totalTasks);
       }
-    };
+    } catch (error) {
+      setError(error || 'An error occurred during fetching tasks.');
+    } finally {
+      setLoading(false);
+    }
+  };  
 
+  useEffect(() => {
     fetchTasksData();
   }, [filterStatus, dueDateSort, currentPage, csrfToken]);
 
@@ -77,6 +77,8 @@ const TasksPage = () => {
       const createdTask = await createTask(taskData, csrfToken);
       setTasks([createdTask, ...tasks]);
       setShowForm(false); // Close the form after creating
+      fetchTasksData();
+      setCurrentPage(1);
     } catch (error) {
       setError(error || 'An error occurred during creating task.');
     }
@@ -107,6 +109,8 @@ const TasksPage = () => {
       setTasks(tasks.filter(task => task._id !== taskToDelete));
       setShowModal(false); // Close the modal
       setTaskToDelete(null); // Clear the task to delete
+      fetchTasksData();
+      setCurrentPage(1);  
     } catch (error) {
       setError(error.message);
     }

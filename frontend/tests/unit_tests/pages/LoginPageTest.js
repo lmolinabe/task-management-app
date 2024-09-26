@@ -5,6 +5,7 @@ import { act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import LoginPage from '../../../src/pages/LoginPage';
 import { AuthContext } from '../../../src/context/AuthContext';
+import AppBackendApi from '../../../src/apis/BackendApi';
 
 // Mock the AuthContext to control the login function and user state
 const mockLogin = jest.fn();
@@ -17,6 +18,9 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock the Backend API
+jest.mock('../../../src/apis/BackendApi');
+
 const MockAuthProvider = ({ children }) => (
   <AuthContext.Provider value={{ user: mockUser, login: mockLogin }}>
     {children}
@@ -28,6 +32,8 @@ describe('LoginPage', () => {
     // Reset mocks before each test
     mockLogin.mockReset();
     mockNavigate.mockReset();
+    // Mock the CSRF token fetch
+    AppBackendApi.get.mockResolvedValue({ data: { csrfToken: 'mock-csrf-token' } });   
   });
 
   it('navigates to the dashboard if login is successful', async () => {
@@ -96,6 +102,8 @@ describe('LoginPage', () => {
         </AuthContext.Provider>
       </BrowserRouter>
     );
+
+    await act(() => Promise.resolve());
 
     // Assert that the navigation to /dashboard occurred
     expect(mockNavigate).toHaveBeenCalledWith('/dashboard');

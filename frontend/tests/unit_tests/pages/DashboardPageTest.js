@@ -4,12 +4,20 @@ import '@testing-library/jest-dom';
 import { act } from '@testing-library/react';
 import DashboardPage from '../../../src/pages/DashboardPage';
 import { fetchTaskSummary } from '../../../src/services/TaskService';
+import AppBackendApi from '../../../src/apis/BackendApi';
 
 // Mock the fetchTaskSummary service
 jest.mock('../../../src/services/TaskService');
+// Mock the Backend API
+jest.mock('../../../src/apis/BackendApi');
 
 describe('DashboardPage', () => {
-  it('renders the dashboard with task summary data', async () => {
+    beforeEach(() => {
+        // Mock the CSRF token fetch
+        AppBackendApi.get.mockResolvedValueOnce({ data: { csrfToken: 'mock-csrf-token' } });    
+    });
+
+    it('renders the dashboard with task summary data', async () => {
         // Mock task summary data
         const mockSummary = {
             totalTasks: 10,
